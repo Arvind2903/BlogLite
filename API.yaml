@@ -1,0 +1,522 @@
+---
+openapi: 3.0.0
+info:
+  title: BlogLite
+  description: This is a simple API
+  contact:
+    email: arvind@bloglite.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/
+  description: Frontend
+- url: http://127.0.0.1:5000
+  description: Backend
+tags:
+- name: posts
+  description: Generic operations on all posts
+- name: userposts
+  description: Specific operations on the posts of logged in user
+- name: signup
+  description: Operation to sign up
+- name: user
+  description: Operations for the users profile
+- name: logout
+  description: Operation to log out
+- name: followers
+  description: Operations on profiles that user follows
+- name: followings
+  description: Operations on profiles that user is followed by
+- name: activity
+  description: Operations on users activity
+- name: job
+  description: Operations on export jobs
+paths:
+  /api/signup:
+    post:
+      tags:
+      - signup
+      summary: signing up user
+      description: signs the user up
+      operationId: signUp
+      requestBody:
+        description: User details provided to sign up
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_signup_body'
+        required: true
+      responses:
+        "200":
+          description: Successfully Signed Up
+        "406":
+          description: Email Not Valid
+        "405":
+          description: Username Already Exists
+        "404":
+          description: Email Already Exists
+  /api/user:
+    get:
+      tags:
+      - user
+      summary: get the logged user
+      description: get the logged user
+      operationId: loggedUser
+      responses:
+        "200":
+          description: Successfully Retrieved Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_signup_body'
+        "400":
+          description: authentication denied
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - user
+      summary: editing users profile details
+      description: edit the user dashboard and update the profile details
+      operationId: editUser
+      responses:
+        "200":
+          description: Successfully Edited Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_signup_body'
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - user
+      summary: delete user profile
+      description: delete the user profile
+      operationId: deleteUser
+      responses:
+        "200":
+          description: Successfully Deleted Profile
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+  /api/user/<int:id>:
+    post:
+      tags:
+      - user
+      summary: get user
+      description: get the user of specified user id
+      operationId: getUser
+      responses:
+        "200":
+          description: Successfully Retrieved Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_signup_body'
+        "400":
+          description: User Not Found
+  /api/logout:
+    get:
+      tags:
+      - logout
+      summary: logout user
+      description: log current user out of application
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Successfully Logged Out User
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+  /api/posts:
+    get:
+      tags:
+      - posts
+      summary: get all posts
+      description: getting all posts for home page
+      operationId: getPosts
+      responses:
+        "200":
+          description: Successfully Fetched All Posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: Invalid Parameters
+  /api/posts/<int:id>:
+    post:
+      tags:
+      - posts
+      summary: get all posts of user
+      description: getting all posts of targeted user
+      operationId: getUsersPosts
+      responses:
+        "200":
+          description: Successfully Fetched All Posts Of User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_signup_body'
+        "400":
+          description: Invalid Parameters
+  /api/userposts:
+    post:
+      tags:
+      - userposts
+      summary: adding post
+      description: posts content to app
+      operationId: addPost
+      responses:
+        "200":
+          description: Successfully Posted Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: Invalid Parameters
+      security:
+      - bearerAuth: []
+  /api/userposts/<int:id>:
+    get:
+      tags:
+      - userposts
+      summary: getting user post
+      description: fetching targetted post
+      operationId: getPost
+      responses:
+        "200":
+          description: Successfully Retrieve Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - userposts
+      summary: editing user post
+      description: editing targetted post
+      operationId: editPost
+      responses:
+        "200":
+          description: Successfully Edited Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - userposts
+      summary: deleting user post
+      description: deleting targetted post
+      operationId: deletePost
+      responses:
+        "200":
+          description: Successfully Deleted Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: Authentication Denied
+      security:
+      - bearerAuth: []
+  /api/followers/<int:id>:
+    get:
+      tags:
+      - followers
+      summary: get followers
+      description: fetches all the followers of user
+      operationId: userFollowers
+      responses:
+        "200":
+          description: followers of user retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Follow'
+        "400":
+          description: incorrect parameters
+    post:
+      tags:
+      - followers
+      summary: check if following
+      description: checks if the user is following a profile
+      operationId: checkUserFollowing
+      responses:
+        "200":
+          description: followers of user retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+        "400":
+          description: incorrect parameters
+      security:
+      - bearerAuth: []
+  /api/followings/<int:id>:
+    get:
+      tags:
+      - followings
+      summary: get followings
+      description: fetches all the profiles that user follows
+      operationId: userFollowings
+      responses:
+        "200":
+          description: followings of user retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Follow'
+        "400":
+          description: incorrect parameters
+    post:
+      tags:
+      - followings
+      summary: add follower
+      description: follows the targeted user
+      operationId: followUser
+      responses:
+        "200":
+          description: Successfully Added Follower
+        "400":
+          description: incorrect parameters
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - followings
+      summary: unfollow an account
+      description: unfollows the targeted user
+      operationId: unfollowUser
+      responses:
+        "200":
+          description: Successfully Removed Follower
+        "400":
+          description: incorrect parameters
+      security:
+      - bearerAuth: []
+  /api/activity:
+    get:
+      tags:
+      - activity
+      summary: get user activity
+      description: "Get login, post, follow and unfollow activity"
+      operationId: userActivity
+      responses:
+        "200":
+          description: Successfully Made Graphs
+        "400":
+          description: incorrect parameters
+  /api/jobs:
+    get:
+      tags:
+      - activity
+      summary: export user details
+      description: asynchronous export job to export csv and send as email
+      operationId: exportJob
+      responses:
+        "200":
+          description: Successfully Queued Task
+        "400":
+          description: incorrect parameters
+    post:
+      tags:
+      - activity
+      summary: import posts
+      description: import job to upload posts as csv
+      operationId: importJob
+      responses:
+        "200":
+          description: Imported Posts Successfully
+        "400":
+          description: File not found
+components:
+  schemas:
+    User:
+      required:
+      - active
+      - activity
+      - email
+      - followers
+      - followings
+      - fs_uniquifier
+      - id
+      - name
+      - password
+      - posts
+      - username
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: arvind
+        email:
+          type: string
+          example: arvind@gmail.com
+        name:
+          type: string
+          example: Arvind Raghavendran
+        phone:
+          type: integer
+          example: 1234567890
+        bio:
+          type: string
+          example: Hello
+        password:
+          type: string
+          example: "1234"
+        active:
+          type: boolean
+          example: true
+        fs_uniquifier:
+          type: string
+          format: utf-8
+          example: b247f21163e613fe6edf222984f7c426
+        posts:
+          $ref: '#/components/schemas/Posts'
+        followers:
+          $ref: '#/components/schemas/Follow'
+        followings:
+          $ref: '#/components/schemas/Follow'
+        activity:
+          $ref: '#/components/schemas/Activity'
+    Posts:
+      required:
+      - author
+      - body
+      - date
+      - id
+      - img_url
+      - title
+      - user_id
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Title of my post
+        body:
+          type: string
+          example: Caption of my post
+        date:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+          example: 1
+        author:
+          $ref: '#/components/schemas/User'
+    Follow:
+      required:
+      - follower_id
+      - following_id
+      - id
+      - is_follow
+      - is_following
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        follower_id:
+          type: integer
+          example: 1
+        following_id:
+          type: integer
+          example: 1
+        is_follow:
+          $ref: '#/components/schemas/User'
+        is_following:
+          $ref: '#/components/schemas/User'
+    Activity:
+      required:
+      - active_user
+      - activity
+      - id
+      - timestamp
+      - user_id
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        activity:
+          type: string
+          example: login
+        timestamp:
+          type: string
+          format: date-time
+        active_user:
+          $ref: '#/components/schemas/User'
+    api_signup_body:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/User'
+    inline_response_200:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Posts'
+        usernames:
+          type: array
+          items:
+            $ref: '#/components/schemas/inline_response_200_usernames'
+    inline_response_200_1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Posts'
+    inline_response_200_2:
+      type: object
+      properties:
+        isFollowing:
+          type: boolean
+    inline_response_200_usernames:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: arvind
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
